@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConnectHub - منصة التواصل الاجتماعي المتقدمة</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- صفحة تسجيل الدخول -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="logo-container">
+                    <div class="logo-icon">🌐</div>
+                    <h1>ConnectHub</h1>
+                </div>
+                <p data-translate="login_subtitle">منصة التواصل الاجتماعي المتقدمة التي تجمع بين الأصالة والابتكار لتوفر تجربة تواصل فريدة ومميزة.</p>
+            </div>
+            <div class="login-form">
+                <input type="text" id="loginEmail" data-translate-placeholder="email_placeholder" placeholder="البريد الإلكتروني أو رقم الهاتف">
+                <input type="password" id="loginPassword" data-translate-placeholder="password_placeholder" placeholder="كلمة المرور">
+                <button onclick="login()" class="login-btn" data-translate="login_btn">تسجيل الدخول</button>
+                <a href="#" class="forgot-password" data-translate="forgot_password">هل نسيت كلمة المرور؟</a>
+                <hr>
+                <button onclick="showSignup()" class="create-account-btn" data-translate="create_account">إنشاء حساب جديد</button>
+                
+                <!-- مبدل اللغة -->
+                <div class="language-switcher">
+                    <button onclick="switchLanguage('ar')" class="lang-btn active" id="langAr">العربية</button>
+                    <button onclick="switchLanguage('en')" class="lang-btn" id="langEn">English</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة التسجيل -->
+    <div id="signupPage" class="signup-container" style="display: none;">
+        <div class="signup-box">
+            <h2 data-translate="create_new_account">إنشاء حساب جديد</h2>
+            <p data-translate="quick_easy">سريع ومجاني.</p>
+            <div class="signup-form">
+                <div class="name-fields">
+                    <input type="text" id="firstName" data-translate-placeholder="first_name" placeholder="الاسم الأول">
+                    <input type="text" id="lastName" data-translate-placeholder="last_name" placeholder="اسم العائلة">
+                </div>
+                <input type="email" id="signupEmail" data-translate-placeholder="email" placeholder="البريد الإلكتروني">
+                <input type="password" id="signupPassword" data-translate-placeholder="new_password" placeholder="كلمة مرور جديدة">
+                <button onclick="signup()" class="signup-btn" data-translate="register">التسجيل</button>
+                <button onclick="showLogin()" class="back-login-btn" data-translate="back_to_login">العودة لتسجيل الدخول</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الصفحة الرئيسية -->
+    <div id="mainPage" style="display: none;">
+        <!-- شريط التنقل العلوي -->
+        <nav class="navbar">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">🌐</span>
+                    <span class="logo-text">ConnectHub</span>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" data-translate-placeholder="search_placeholder" placeholder="البحث في ConnectHub">
+                </div>
+            </div>
+            <div class="nav-center">
+                <div class="nav-icon active" onclick="showMainContent()">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="nav-icon" onclick="showFriendsPage()">
+                    <i class="fas fa-users"></i>
+                    <span id="friendRequestsCount" class="notification-badge" style="display: none;">0</span>
+                </div>
+                <div class="nav-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="nav-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="nav-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="nav-icon" onclick="switchLanguage(currentLanguage === 'ar' ? 'en' : 'ar')">
+                    <i class="fas fa-globe"></i>
+                    <span id="currentLangDisplay">عربي</span>
+                </div>
+                <div class="nav-icon" onclick="showNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
+                </div>
+                <div class="profile-menu" onclick="showUserMenu()">
+                    <img src="https://via.placeholder.com/40x40" alt="Profile">
+                </div>
+            </div>
+        </nav>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="main-content" id="mainContent">
+            <!-- القائمة الجانبية اليسرى -->
+            <div class="left-sidebar">
+                <div class="profile-info">
+                    <img src="https://via.placeholder.com/40x40" alt="Profile">
+                    <span id="userNameDisplay">المستخدم</span>
+                </div>
+                <div class="sidebar-item" onclick="showFriendsPage()">
+                    <i class="fas fa-user-friends"></i>
+                    <span data-translate="friends">الأصدقاء</span>
+                    <span id="friendRequestsBadge" class="notification-badge" style="display: none;">0</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span data-translate="groups">المجموعات</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-tv"></i>
+                    <span>Watch</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span data-translate="events">الأحداث</span>
+                </div>
+                <div class="sidebar-item">
+                    <i class="fas fa-bookmark"></i>
+                    <span data-translate="saved">المحفوظات</span>
+                </div>
+            </div>
+
+            <!-- منطقة المنشورات -->
+            <div class="center-content">
+                <!-- إنشاء منشور -->
+                <div class="create-post">
+                    <div class="create-post-top">
+                        <img src="https://via.placeholder.com/40x40" alt="Profile">
+                        <input type="text" id="postInput" data-translate-placeholder="whats_on_mind" placeholder="ما الذي تفكر فيه؟" onclick="openPostModal()">
+                    </div>
+                    <hr>
+                    <div class="create-post-bottom">
+                        <div class="post-option">
+                            <i class="fas fa-video" style="color: #f02849;"></i>
+                            <span data-translate="live_video">فيديو مباشر</span>
+                        </div>
+                        <div class="post-option">
+                            <i class="fas fa-images" style="color: #45bd62;"></i>
+                            <span data-translate="photo_video">صورة/فيديو</span>
+                        </div>
+                        <div class="post-option">
+                            <i class="fas fa-smile" style="color: #f7b928;"></i>
+                            <span data-translate="feeling_activity">شعور/نشاط</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المنشورات -->
+                <div id="postsContainer">
+                    <!-- المنشورات ستُضاف هنا ديناميكياً -->
+                </div>
+            </div>
+
+            <!-- القائمة الجانبية اليمنى -->
+            <div class="right-sidebar">
+                <div class="contacts-section">
+                    <h3 data-translate="contacts">جهات الاتصال</h3>
+                    <div id="onlineFriendsList">
+                        <!-- قائمة الأصدقاء المتصلين -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الأصدقاء -->
+        <div id="friendsContent" class="friends-page" style="display: none;">
+            <div class="friends-header">
+                <button onclick="showMainContent()" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-translate="back">العودة</span>
+                </button>
+                <h2 data-translate="friends_management">إدارة الأصدقاء</h2>
+            </div>
+            
+            <div class="friends-tabs">
+                <button class="tab-btn active" onclick="showFriendsTab('requests')" data-translate="friend_requests">طلبات الصداقة</button>
+                <button class="tab-btn" onclick="showFriendsTab('friends')" data-translate="friends_list">قائمة الأصدقاء</button>
+                <button class="tab-btn" onclick="showFriendsTab('suggestions')" data-translate="friend_suggestions">اقتراحات الأصدقاء</button>
+            </div>
+            
+            <div id="friendRequests" class="friends-section">
+                <h3 data-translate="incoming_requests">طلبات الصداقة الواردة</h3>
+                <div id="friendRequestsList"></div>
+            </div>
+            
+            <div id="friendsList" class="friends-section" style="display: none;">
+                <h3 data-translate="my_friends">قائمة الأصدقاء</h3>
+                <div id="myFriendsList"></div>
+            </div>
+            
+            <div id="friendSuggestions" class="friends-section" style="display: none;">
+                <h3 data-translate="suggested_friends">اقتراحات الأصدقاء</h3>
+                <div id="suggestedFriendsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إنشاء منشور -->
+    <div id="postModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="create_post">إنشاء منشور</h3>
+                <span class="close" onclick="closePostModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40x40" alt="Profile">
+                    <span id="modalUserName">المستخدم</span>
+                </div>
+                <textarea id="postText" data-translate-placeholder="whats_on_mind" placeholder="ما الذي تفكر فيه؟"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button onclick="createPost()" class="post-btn" data-translate="post">نشر</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإشعارات -->
+    <div id="notificationsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="notifications">الإشعارات</h3>
+                <span class="close" onclick="closeNotifications()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="notificationsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- قائمة المستخدم -->
+    <div id="userMenu" class="user-menu" style="display: none;">
+        <div class="user-menu-item" onclick="viewProfile()">
+            <i class="fas fa-user"></i>
+            <span data-translate="view_profile">عرض الملف الشخصي</span>
+        </div>
+        <div class="user-menu-item" onclick="showSettings()">
+            <i class="fas fa-cog"></i>
+            <span data-translate="settings">الإعدادات</span>
+        </div>
+        <div class="user-menu-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span data-translate="logout">تسجيل الخروج</span>
+        </div>
+    </div>
+
+    <!-- نافذة تحذير المحتوى -->
+    <div id="contentWarningModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="content_warning">تحذير المحتوى</h3>
+            </div>
+            <div class="modal-body">
+                <p id="contentWarningMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeContentWarning()" class="cancel-btn" data-translate="ok">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تحذير تعدد الحسابات -->
+    <div id="accountLimitModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 data-translate="account_limit_title">حد الحسابات</h3>
+            </div>
+            <div class="modal-body">
+                <p data-translate="account_limit_message">لا يمكنك إنشاء أكثر من حسابين على نفس الجهاز لأسباب أمنية.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAccountLimitModal()" class="cancel-btn" data-translate="ok">حسناً</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
