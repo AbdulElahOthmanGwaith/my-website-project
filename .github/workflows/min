@@ -1,0 +1,31 @@
+name: Deploy Website
+
+on:
+  push:
+    branches:
+      - main  # يشغل الأكشن عند رفع ملفات إلى الفرع الرئيسي
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4  # يسحب الملفات من المستودع
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # تحديد إصدار Node.js (اختياري إذا تستخدم JS)
+
+      - name: Install dependencies
+        run: npm install  # أو تخطيها إذا ليس لديك package.json
+
+      - name: Build project
+        run: npm run build  # أو تجاهلها إذا موقعك ثابت (HTML/CSS فقط)
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist  # مجلد الناتج (غيره إلى ./ أو build حسب مشروعك)
