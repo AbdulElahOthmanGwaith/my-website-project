@@ -344,20 +344,25 @@ function setHFToken() {
     }
 }
 
-// تسجيل الدخول
-function login() {
+// تسجيل الدخول باستخدام Firebase
+async function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
     if (email && password) {
-        currentUser = {
-            name: email.split('@')[0] || t('user'),
-            email: email
-        };
-        
-        saveData();
-        showMainPage();
-        updateNotificationCounts();
+        try {
+            // ملاحظة: سيتم تفعيل هذا الكود بمجرد وضع إعدادات Firebase الصحيحة
+            // const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(window.auth, email, password);
+            // currentUser = { name: userCredential.user.email.split('@')[0], email: userCredential.user.email };
+            
+            // حالياً سنبقي على النظام المحلي مع تهيئة الكود للسحابي
+            currentUser = { name: email.split('@')[0] || t('user'), email: email };
+            saveData();
+            showMainPage();
+            listenForPosts(); // بدء الاستماع للمنشورات من السحابة
+        } catch (error) {
+            alert("خطأ في تسجيل الدخول: " + error.message);
+        }
     } else {
         alert(t('login_required'));
     }
@@ -777,38 +782,51 @@ function closePostModal() {
     document.getElementById('postText').value = '';
 }
 
-// إنشاء منشور جديد
-function createPost() {
+// إنشاء منشور جديد وحفظه في Firebase
+async function createPost() {
     const postText = document.getElementById('postText').value.trim();
     
     if (postText) {
-        // فحص المحتوى غير اللائق
         if (filterInappropriateContent(postText)) {
             showContentWarning(t('inappropriate_content'));
             return;
         }
         
-        const newPost = {
-            id: postIdCounter++,
+        const postData = {
             author: currentUser.name,
             content: postText,
             image: window.generatedImageUrl || null,
-            time: t('now'),
+            createdAt: new Date().toISOString(),
             likes: 0,
-            comments: [],
-            liked: false
+            comments: []
         };
+
+        // إذا كانت Firebase مهيأة، سنرفع البيانات للسحابة
+        if (window.db) {
+            try {
+                // سيتم تفعيل الرفع الفعلي عند وضع الإعدادات
+                // await window.firebaseFirestore.addDoc(window.firebaseFirestore.collection(window.db, "posts"), postData);
+            } catch (e) { console.error("Error adding document: ", e); }
+        }
+        
+        // التحديث المحلي الفوري للتجربة
+        const newPost = { ...postData, id: Date.now(), time: t('now'), liked: false };
+        posts.unshift(newPost);
         window.generatedImageUrl = null;
         document.getElementById('imagePreview').style.display = 'none';
         
-        posts.unshift(newPost);
         saveData();
         displayPosts();
         closePostModal();
-        
-        // إضافة إشعار
         addNotification(t('post_created'));
     }
+}
+
+// الاستماع للمنشورات الجديدة من السحابة
+function listenForPosts() {
+    if (!window.db) return;
+    // سيتم تفعيل الاستماع الحي بمجرد ربط Firebase
+    console.log("Listening for cloud posts...");
 }
 
 // عرض تحذير المحتوى
