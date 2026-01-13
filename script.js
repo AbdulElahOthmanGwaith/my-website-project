@@ -1,5 +1,6 @@
 // متغيرات عامة
 let currentUser = null;
+let hfToken = localStorage.getItem('hfToken') || ''; // Hugging Face API Token
 let posts = [];
 let postIdCounter = 1;
 let friends = [];
@@ -257,6 +258,37 @@ function reportContent(postId, reason) {
         saveData();
         displayPosts();
         addNotification(t('report_submitted'));
+    }
+}
+
+// Hugging Face AI Integration
+async function analyzeSentiment(text) {
+    if (!hfToken) return null;
+    
+    const MODEL_ID = "BaherElnaggar/autotrain-arabic-sentiment-analysis-51469121981";
+    
+    try {
+        const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
+            headers: { Authorization: `Bearer ${hfToken}` },
+            method: "POST",
+            body: JSON.stringify({ inputs: text }),
+        });
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error("HF API Error:", error);
+        return null;
+    }
+}
+
+// إعداد مفتاح Hugging Face
+function setHFToken() {
+    const token = prompt(currentLanguage === 'ar' ? 'يرجى إدخال Hugging Face API Token الخاص بك:' : 'Please enter your Hugging Face API Token:');
+    if (token) {
+        hfToken = token;
+        localStorage.setItem('hfToken', token);
+        alert(currentLanguage === 'ar' ? 'تم حفظ المفتاح بنجاح!' : 'Token saved successfully!');
+        displayPosts(); // إعادة عرض المنشورات لتفعيل التحليل
     }
 }
 
@@ -781,7 +813,10 @@ function createPostElement(post) {
             </div>
         </div>
         <div class="post-content">
-            ${post.content}
+            <p>${post.content}</p>
+            <div id="ai-analysis-${post.id}" class="ai-tag" style="display: none; margin-top: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; width: fit-content;">
+                <i class="fas fa-robot"></i> <span class="analysis-text"></span>
+            </div>
         </div>
         <div class="post-actions">
             <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
@@ -822,6 +857,44 @@ function createPostElement(post) {
         </div>
     `;
     
+    // تشغيل التحليل إذا كان التوكن موجوداً
+    if (hfToken && post.content) {
+        setTimeout(() => {
+            const analysisTag = document.getElementById(`ai-analysis-${post.id}`);
+            if (analysisTag) {
+                analysisTag.style.display = 'inline-block';
+                analysisTag.querySelector('.analysis-text').innerText = currentLanguage === 'ar' ? 'جاري التحليل...' : 'Analyzing...';
+                
+                analyzeSentiment(post.content).then(result => {
+                    if (result && Array.isArray(result) && result[0]) {
+                        const topSentiment = Array.isArray(result[0]) ? result[0].sort((a, b) => b.score - a.score)[0] : result[0];
+                        let sentimentText = "";
+                        let color = "#6366f1";
+                        
+                        const label = topSentiment.label.toLowerCase();
+                        if (label.includes('pos') || label === 'label_2') {
+                            sentimentText = currentLanguage === 'ar' ? "إيجابي 😊" : "Positive 😊";
+                            color = "#10b981";
+                        } else if (label.includes('neg') || label === 'label_0') {
+                            sentimentText = currentLanguage === 'ar' ? "سلبي 😔" : "Negative 😔";
+                            color = "#ef4444";
+                        } else {
+                            sentimentText = currentLanguage === 'ar' ? "محايد 😐" : "Neutral 😐";
+                            color = "#6b7280";
+                        }
+                        
+                        analysisTag.querySelector('.analysis-text').innerText = `AI: ${sentimentText}`;
+                        analysisTag.style.backgroundColor = color + "15";
+                        analysisTag.style.color = color;
+                        analysisTag.style.border = `1px solid ${color}30`;
+                    } else {
+                        analysisTag.style.display = 'none';
+                    }
+                });
+            }
+        }, 100);
+    }
+
     return postDiv;
 }
 
