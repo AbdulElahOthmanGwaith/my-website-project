@@ -1,0 +1,17 @@
+{
+  "name": "ConnectHub - منصة التواصل الاجتماعي",
+  "short_name": "ConnectHub",
+  "description": "منصة التواصل الاجتماعي المتقدمة التي تجمع بين الأصالة والابتكار.",
+  "start_url": "/my-website-project/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "assets/screenshots/main_page.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}
