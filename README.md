@@ -1,3 +1,12 @@
+---
+title: ConnectHub
+emoji: 🚀
+colorFrom: indigo
+colorTo: green
+sdk: static
+pinned: false
+---
+
 # ConnectHub - منصة التواصل الاجتماعي المتقدمة
 
 ![ConnectHub Demo](assets/screenshots/demo.gif)
