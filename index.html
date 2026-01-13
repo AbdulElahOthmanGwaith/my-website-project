@@ -149,22 +149,21 @@
                         <img src="https://via.placeholder.com/40x40" alt="Profile">
                         <input type="text" id="postInput" data-translate-placeholder="whats_on_mind" placeholder="ما الذي تفكر فيه؟" onclick="openPostModal()">
                     </div>
-                    <hr>
-                    <div class="create-post-bottom">
-                        <div class="post-option">
-                            <i class="fas fa-video" style="color: #f02849;"></i>
-                            <span data-translate="live_video">فيديو مباشر</span>
-                        </div>
-                        <div class="post-option">
+                               <div class="post-input-actions">
+                        <button class="post-action-btn" id="genImageBtn" onclick="handleGenerateImage()">
+                            <i class="fas fa-magic" style="color: #6366f1;"></i>
+                            <span data-translate="ai_image">توليد صورة AI</span>
+                        </button>
+                        <button class="post-action-btn">
                             <i class="fas fa-images" style="color: #45bd62;"></i>
                             <span data-translate="photo_video">صورة/فيديو</span>
-                        </div>
-                        <div class="post-option">
+                        </button>
+                        <button class="post-action-btn">
                             <i class="fas fa-smile" style="color: #f7b928;"></i>
                             <span data-translate="feeling_activity">شعور/نشاط</span>
-                        </div>
+                        </button>
                     </div>
-                </div>
+                    <img id="imagePreview" style="display:none; width:100%; max-height:300px; object-fit:cover; border-radius:8px; margin-top:10px;"> </div>
 
                 <!-- المنشورات -->
                 <div id="postsContainer">
