@@ -858,11 +858,13 @@ function createCommentHTML(comment) {
 }
 
 // نظام التعليقات الصوتية المتطور
-let audioContext = null;
-let mediaRecorder = null;
-let recordedChunks = [];
-let recordingStartTime = null;
-let recordingTimer = null;
+// تم نقل التعريفات إلى بداية الملف أو التحقق من وجودها لتجنب التكرار
+if (typeof audioContext === 'undefined') {
+    var audioContext = null;
+}
+// mediaRecorder و recordedChunks تم تعريفهما بالفعل في بداية الملف
+recordingStartTime = null;
+recordingTimer = null;
 
 // تهيئة نظام الصوت
 function initializeAudioSystem() {

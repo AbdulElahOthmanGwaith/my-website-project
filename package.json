@@ -22,12 +22,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/connecthub.git"
+    "url": "https://github.com/AbdulElahOthmanGwaith/my-website-project.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/connecthub/issues"
+    "url": "https://github.com/AbdulElahOthmanGwaith/my-website-project/issues"
   },
-  "homepage": "https://yourusername.github.io/connecthub",
+  "homepage": "https://AbdulElahOthmanGwaith.github.io/my-website-project",
   "devDependencies": {
     "http-server": "^14.1.1",
     "gh-pages": "^6.1.1"
