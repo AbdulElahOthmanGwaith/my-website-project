@@ -264,9 +264,40 @@ function reportContent(postId, reason) {
 // Hugging Face AI Integration
 async function analyzeSentiment(text) {
     if (!hfToken) return null;
-    
     const MODEL_ID = "BaherElnaggar/autotrain-arabic-sentiment-analysis-51469121981";
-    
+    try {
+        const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
+            headers: { Authorization: `Bearer ${hfToken}` },
+            method: "POST",
+            body: JSON.stringify({ inputs: text }),
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("HF Sentiment Error:", error);
+        return null;
+    }
+}
+
+async function generateAIImage(prompt) {
+    if (!hfToken) return null;
+    const MODEL_ID = "runwayml/stable-diffusion-v1-5";
+    try {
+        const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
+            headers: { Authorization: `Bearer ${hfToken}` },
+            method: "POST",
+            body: JSON.stringify({ inputs: prompt }),
+        });
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+    } catch (error) {
+        console.error("HF Image Gen Error:", error);
+        return null;
+    }
+}
+
+async function summarizeText(text) {
+    if (!hfToken || text.length < 50) return null;
+    const MODEL_ID = "facebook/bart-large-cnn";
     try {
         const response = await fetch(`https://api-inference.huggingface.co/models/${MODEL_ID}`, {
             headers: { Authorization: `Bearer ${hfToken}` },
@@ -274,11 +305,32 @@ async function analyzeSentiment(text) {
             body: JSON.stringify({ inputs: text }),
         });
         const result = await response.json();
-        return result;
+        return result[0]?.summary_text || null;
     } catch (error) {
-        console.error("HF API Error:", error);
+        console.error("HF Summary Error:", error);
         return null;
     }
+}
+
+async function handleGenerateImage() {
+    const prompt = prompt(currentLanguage === 'ar' ? 'صف الصورة التي تريد توليدها (بالانجليزية لنتائج أفضل):' : 'Describe the image you want to generate:');
+    if (!prompt) return;
+    
+    const btn = document.getElementById('genImageBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+
+    const imageUrl = await generateAIImage(prompt);
+    if (imageUrl) {
+        const preview = document.getElementById('imagePreview');
+        preview.src = imageUrl;
+        preview.style.display = 'block';
+        window.generatedImageUrl = imageUrl;
+    }
+    
+    btn.innerHTML = originalText;
+    btn.disabled = false;
 }
 
 // إعداد مفتاح Hugging Face
@@ -740,11 +792,14 @@ function createPost() {
             id: postIdCounter++,
             author: currentUser.name,
             content: postText,
+            image: window.generatedImageUrl || null,
             time: t('now'),
             likes: 0,
             comments: [],
             liked: false
         };
+        window.generatedImageUrl = null;
+        document.getElementById('imagePreview').style.display = 'none';
         
         posts.unshift(newPost);
         saveData();
@@ -796,6 +851,20 @@ function displayPosts() {
 }
 
 // إنشاء عنصر منشور متطور
+async function handleSummarize(postId) {
+    const post = posts.find(p => p.id === postId);
+    const summaryDiv = document.getElementById(`summary-${postId}`);
+    summaryDiv.style.display = 'block';
+    summaryDiv.innerText = currentLanguage === 'ar' ? 'جاري التلخيص...' : 'Summarizing...';
+    
+    const summary = await summarizeText(post.content);
+    if (summary) {
+        summaryDiv.innerText = summary;
+    } else {
+        summaryDiv.innerText = currentLanguage === 'ar' ? 'تعذر التلخيص' : 'Summary failed';
+    }
+}
+
 function createPostElement(post) {
     const postDiv = document.createElement('div');
     postDiv.className = 'post';
@@ -813,10 +882,18 @@ function createPostElement(post) {
             </div>
         </div>
         <div class="post-content">
-            <p>${post.content}</p>
-            <div id="ai-analysis-${post.id}" class="ai-tag" style="display: none; margin-top: 10px; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; width: fit-content;">
-                <i class="fas fa-robot"></i> <span class="analysis-text"></span>
+            <p id="post-text-${post.id}">${post.content}</p>
+            ${post.image ? `<img src="${post.image}" class="post-image" style="width:100%; border-radius:8px; margin-top:10px;">` : ''}
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                <div id="ai-analysis-${post.id}" class="ai-tag" style="display: none; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem;">
+                    <i class="fas fa-robot"></i> <span class="analysis-text"></span>
+                </div>
+                ${post.content.length > 100 ? `
+                <button onclick="handleSummarize(${post.id})" class="ai-btn" style="background: #f3f4f6; border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; cursor: pointer;">
+                    <i class="fas fa-compress-alt"></i> ${currentLanguage === 'ar' ? 'تلخيص ذكي' : 'AI Summary'}
+                </button>` : ''}
             </div>
+            <div id="summary-${post.id}" style="display:none; margin-top:10px; padding:10px; background:#f9fafb; border-left:4px solid #6366f1; font-style:italic; font-size:0.9rem;"></div>
         </div>
         <div class="post-actions">
             <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">

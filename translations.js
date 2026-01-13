@@ -99,6 +99,8 @@ const translations = {
         remove_friend_confirm: "هل تريد إزالة",
         from_friends: "من قائمة الأصدقاء؟",
         post_created: "تم إنشاء المنشور بنجاح",
+        ai_image: "توليد صورة AI",
+        ai_summary: "تلخيص ذكي",
         
         // عينات
         sample_user_1: "أحمد محمد",
@@ -227,6 +229,8 @@ const translations = {
         remove_friend_confirm: "Do you want to remove",
         from_friends: "from your friends list?",
         post_created: "Post created successfully",
+        ai_image: "AI Image Gen",
+        ai_summary: "AI Summary",
         
         // Samples
         sample_user_1: "Ahmed Mohamed",
