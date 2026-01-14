@@ -28,9 +28,28 @@
                 <p data-translate="login_subtitle">منصة التواصل الاجتماعي المتقدمة التي تجمع بين الأصالة والابتكار لتوفر تجربة تواصل فريدة ومميزة.</p>
             </div>
             <div class="login-form">
-                <input type="text" id="loginEmail" data-translate-placeholder="email_placeholder" placeholder="البريد الإلكتروني أو رقم الهاتف">
-                <input type="password" id="loginPassword" data-translate-placeholder="password_placeholder" placeholder="كلمة المرور">
-                <button onclick="login()" class="login-btn" data-translate="login_btn">تسجيل الدخول</button>
+                <div class="login-tabs" style="display: flex; margin-bottom: 15px; border-bottom: 1px solid #ddd;">
+                    <div id="emailTab" class="login-tab active" onclick="toggleLoginMethod('email')" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-bottom: 2px solid #6366f1; color: #6366f1; font-weight: bold;">البريد الإلكتروني</div>
+                    <div id="phoneTab" class="login-tab" onclick="toggleLoginMethod('phone')" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666;">رقم الهاتف</div>
+                </div>
+
+                <div id="emailSection">
+                    <input type="text" id="loginEmail" data-translate-placeholder="email_placeholder" placeholder="البريد الإلكتروني">
+                    <input type="password" id="loginPassword" data-translate-placeholder="password_placeholder" placeholder="كلمة المرور">
+                </div>
+
+                <div id="phoneSection" style="display: none;">
+                    <input type="tel" id="loginPhone" placeholder="رقم الهاتف (مثال: +966500000000)">
+                    <div id="recaptcha-container" style="margin-bottom: 10px;"></div>
+                    <div id="otpInputSection" style="display: none;">
+                        <input type="text" id="otpCode" placeholder="أدخل رمز التحقق">
+                    </div>
+                </div>
+
+                <button id="loginMainBtn" onclick="login()" class="login-btn" data-translate="login_btn">تسجيل الدخول</button>
+                <button id="sendOtpBtn" onclick="sendOTP()" class="login-btn" style="display: none; background-color: #10b981;">إرسال رمز التحقق</button>
+                <button id="verifyOtpBtn" onclick="verifyOTP()" class="login-btn" style="display: none; background-color: #6366f1;">تحقق ودخول</button>
+
                 <a href="#" class="forgot-password" data-translate="forgot_password">هل نسيت كلمة المرور؟</a>
                 <hr>
                 <button onclick="showSignup()" class="create-account-btn" data-translate="create_account">إنشاء حساب جديد</button>
@@ -296,9 +315,10 @@
 
     <script src="translations.js"></script>
     <script type="module">
-        import { db, auth } from './firebase-config.js';
+        import { db, auth, RecaptchaVerifier, signInWithPhoneNumber, signInWithEmailAndPassword } from './firebase-config.js';
         window.db = db;
         window.auth = auth;
+        window.firebaseAuth = { RecaptchaVerifier, signInWithPhoneNumber, signInWithEmailAndPassword };
     </script>
     <script src="script.js"></script>
     <script>
