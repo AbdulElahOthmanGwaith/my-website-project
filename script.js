@@ -344,22 +344,102 @@ function setHFToken() {
     }
 }
 
-// تسجيل الدخول باستخدام Firebase
+// التبديل بين طرق تسجيل الدخول
+function toggleLoginMethod(method) {
+    const emailSection = document.getElementById('emailSection');
+    const phoneSection = document.getElementById('phoneSection');
+    const emailTab = document.getElementById('emailTab');
+    const phoneTab = document.getElementById('phoneTab');
+    const loginMainBtn = document.getElementById('loginMainBtn');
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+
+    if (method === 'email') {
+        emailSection.style.display = 'block';
+        phoneSection.style.display = 'none';
+        emailTab.style.borderBottom = '2px solid #6366f1';
+        emailTab.style.color = '#6366f1';
+        phoneTab.style.borderBottom = 'none';
+        phoneTab.style.color = '#666';
+        loginMainBtn.style.display = 'block';
+        sendOtpBtn.style.display = 'none';
+        verifyOtpBtn.style.display = 'none';
+    } else {
+        emailSection.style.display = 'none';
+        phoneSection.style.display = 'block';
+        phoneTab.style.borderBottom = '2px solid #6366f1';
+        phoneTab.style.color = '#6366f1';
+        emailTab.style.borderBottom = 'none';
+        emailTab.style.color = '#666';
+        loginMainBtn.style.display = 'none';
+        sendOtpBtn.style.display = 'block';
+        verifyOtpBtn.style.display = 'none';
+        
+        // تهيئة Recaptcha إذا لم تكن مهيأة
+        if (!window.recaptchaVerifier && window.auth) {
+            window.recaptchaVerifier = new window.firebaseAuth.RecaptchaVerifier(window.auth, 'recaptcha-container', {
+                'size': 'normal',
+                'callback': (response) => { console.log("Recaptcha verified"); }
+            });
+        }
+    }
+}
+
+// إرسال رمز التحقق (OTP)
+async function sendOTP() {
+    const phoneNumber = document.getElementById('loginPhone').value;
+    if (!phoneNumber) {
+        alert("يرجى إدخال رقم الهاتف");
+        return;
+    }
+
+    try {
+        const appVerifier = window.recaptchaVerifier;
+        // سيتم تفعيل الإرسال الفعلي عند ربط Firebase
+        // window.confirmationResult = await window.firebaseAuth.signInWithPhoneNumber(window.auth, phoneNumber, appVerifier);
+        
+        document.getElementById('otpInputSection').style.display = 'block';
+        document.getElementById('sendOtpBtn').style.display = 'none';
+        document.getElementById('verifyOtpBtn').style.display = 'block';
+        alert("تم إرسال رمز التحقق (تجريبي)");
+    } catch (error) {
+        alert("خطأ في إرسال الرمز: " + error.message);
+    }
+}
+
+// التحقق من الرمز والدخول
+async function verifyOTP() {
+    const code = document.getElementById('otpCode').value;
+    if (!code) {
+        alert("يرجى إدخال الرمز");
+        return;
+    }
+
+    try {
+        // سيتم تفعيل التحقق الفعلي عند ربط Firebase
+        // const result = await window.confirmationResult.confirm(code);
+        // currentUser = { name: "User_" + result.user.phoneNumber.slice(-4), email: result.user.phoneNumber };
+        
+        currentUser = { name: "User_" + document.getElementById('loginPhone').value.slice(-4), email: document.getElementById('loginPhone').value };
+        saveData();
+        showMainPage();
+        listenForPosts();
+    } catch (error) {
+        alert("الرمز غير صحيح: " + error.message);
+    }
+}
+
+// تسجيل الدخول باستخدام Firebase (البريد الإلكتروني)
 async function login() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     
     if (email && password) {
         try {
-            // ملاحظة: سيتم تفعيل هذا الكود بمجرد وضع إعدادات Firebase الصحيحة
-            // const userCredential = await window.firebaseAuth.signInWithEmailAndPassword(window.auth, email, password);
-            // currentUser = { name: userCredential.user.email.split('@')[0], email: userCredential.user.email };
-            
-            // حالياً سنبقي على النظام المحلي مع تهيئة الكود للسحابي
             currentUser = { name: email.split('@')[0] || t('user'), email: email };
             saveData();
             showMainPage();
-            listenForPosts(); // بدء الاستماع للمنشورات من السحابة
+            listenForPosts();
         } catch (error) {
             alert("خطأ في تسجيل الدخول: " + error.message);
         }
