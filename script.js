@@ -822,11 +822,42 @@ async function createPost() {
     }
 }
 
-// الاستماع للمنشورات الجديدة من السحابة
+// الاستماع للمنشورات الجديدة من السحابة (Real-time)
 function listenForPosts() {
     if (!window.db) return;
-    // سيتم تفعيل الاستماع الحي بمجرد ربط Firebase
-    console.log("Listening for cloud posts...");
+    
+    const q = window.firebaseFirestore.query(
+        window.firebaseFirestore.collection(window.db, "posts"), 
+        window.firebaseFirestore.orderBy("createdAt", "desc")
+    );
+
+    window.firebaseFirestore.onSnapshot(q, (snapshot) => {
+        const cloudPosts = [];
+        snapshot.forEach((doc) => {
+            cloudPosts.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // دمج المنشورات السحابية مع المحلية (الأولوية للسحابية)
+        posts = cloudPosts.map(p => ({
+            ...p,
+            time: formatTime(p.createdAt),
+            liked: false // يمكن ربطها لاحقاً بقاعدة البيانات
+        }));
+        
+        displayPosts();
+    });
+}
+
+// تنسيق الوقت بشكل نسبي
+function formatTime(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 60) return t('now');
+    if (diff < 3600) return Math.floor(diff / 60) + "m";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h";
+    return date.toLocaleDateString();
 }
 
 // عرض تحذير المحتوى
