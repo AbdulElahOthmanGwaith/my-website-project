@@ -1,5 +1,4 @@
-// Firebase Configuration & Initialization
-// يرجى استبدال الإعدادات أدناه بإعدادات مشروعك من Firebase Console
+// استبدل القيم التالية بإعدادات مشروعك من Firebase Console عند تفعيل الخدمات السحابية.
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -14,9 +13,38 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// تهيئة Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+const requiredConfigKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
+const firebaseReady = requiredConfigKeys.every((key) => {
+    const value = firebaseConfig[key];
+    return typeof value === 'string' && value.length > 0 && !value.includes('YOUR_');
+});
 
-export { db, auth, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber };
+let db = null;
+let auth = null;
+
+if (firebaseReady) {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+} else {
+    // يعمل ConnectHub في الوضع المحلي عندما لا تكون إعدادات Firebase حقيقية بعد.
+    console.info('Firebase غير مهيأ: سيتم استخدام ميزات ConnectHub المحلية فقط.');
+}
+
+export {
+    db,
+    auth,
+    firebaseReady,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+    RecaptchaVerifier,
+    signInWithPhoneNumber
+};
